@@ -1,0 +1,63 @@
+# Example SSH Configuration
+# Secure settings for /etc/ssh/sshd_config
+
+# Basic SSH Settings
+Port 22
+# Note: Protocol 2 is default in modern OpenSSH (no longer needed)
+AddressFamily inet
+
+# Authentication Settings
+PermitRootLogin no
+PasswordAuthentication no
+PubkeyAuthentication yes
+PermitEmptyPasswords no
+KbdInteractiveAuthentication no
+UsePAM yes
+
+# Security Limits
+MaxAuthTries 3
+MaxSessions 10
+LoginGraceTime 30
+
+# Disable Unnecessary Features
+X11Forwarding no
+PermitUserEnvironment no
+AllowAgentForwarding no
+AllowTcpForwarding no
+PermitTunnel no
+
+# Logging
+SyslogFacility AUTH
+LogLevel VERBOSE
+
+# Cryptography Settings (Strong)
+HostKey /etc/ssh/ssh_host_ed25519_key
+HostKey /etc/ssh/ssh_host_rsa_key
+
+# Ciphers and algorithms
+KexAlgorithms curve25519-sha256,curve25519-sha256@libssh.org,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512
+Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
+MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512,hmac-sha2-256
+
+# Optional: Restrict to specific users or groups
+# AllowUsers user1 user2
+# AllowGroups ssh-users sudo
+
+# Optional: Use a non-standard port for added obscurity
+# Port 2222
+# Note: Update firewall rules if you change the port
+
+# Connection Settings
+ClientAliveInterval 300
+ClientAliveCountMax 2
+TCPKeepAlive yes
+Compression delayed
+
+# Banner (optional)
+# Banner /etc/ssh/banner.txt
+
+# Subsystems
+Subsystem sftp /usr/lib/openssh/sftp-server -f AUTHPRIV -l INFO
+
+# Accept locale-related environment variables
+AcceptEnv LANG LC_*
