@@ -22,13 +22,14 @@ This hardening script implements the following security measures:
 ### 🔥 Firewall Configuration
 - **UFW (Uncomplicated Firewall)**: Simple yet powerful firewall management
 - **Default Deny Policy**: Blocks all incoming connections by default
-- **Essential Ports**: Opens SSH (22), HTTP (80), and HTTPS (443)
+- **Essential Ports**: Opens SSH (22), HTTP (80), and HTTPS (443) by default
+  - *Note: HTTP/HTTPS ports are opened for web server deployment. Comment out in script if not needed.*
 - **Customizable Rules**: Easy to add more rules as needed
 
 ### 🔐 SSH Hardening
 - **Disable Root Login**: Prevents direct root access via SSH
 - **Key-Based Authentication**: Disables password authentication
-- **Protocol 2 Only**: Uses the more secure SSH protocol version 2
+- **Modern SSH Standards**: Uses secure defaults (Protocol 2 is standard)
 - **Reduced Login Grace Time**: Limits connection time before authentication
 - **Max Authentication Attempts**: Limits failed login attempts to 3
 - **X11 Forwarding Disabled**: Reduces attack surface
@@ -49,7 +50,8 @@ This hardening script implements the following security measures:
 - **ICMP Broadcast Protection**: Ignores ping broadcasts
 - **SYN Flood Protection**: TCP SYN cookies enabled
 - **IP Forwarding Disabled**: Prevents routing between interfaces
-- **IPv6 Disabled**: Optional (can be enabled if needed)
+- **IPv6 Disabled**: Automatically disabled (can be re-enabled if needed for your environment)
+  - *Note: Modern cloud environments may require IPv6. See customization section to re-enable.*
 
 ## Prerequisites
 

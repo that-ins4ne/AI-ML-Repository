@@ -36,7 +36,9 @@ fi
 
 echo -e "${GREEN}Creating user: $USERNAME${NC}"
 
-# Create user with home directory
+# Create user with home directory (will prompt for password)
+# Note: User will be prompted for password which should be strong
+# SSH key authentication should be set up afterward
 adduser --gecos "" $USERNAME
 
 # Add user to sudo group

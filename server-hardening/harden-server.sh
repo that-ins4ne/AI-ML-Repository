@@ -89,10 +89,11 @@ ufw --force disable
 ufw default deny incoming
 ufw default allow outgoing
 
-# Allow SSH (port 22)
+# Allow SSH (port 22) - Essential
 ufw allow 22/tcp comment 'SSH'
 
-# Allow HTTP and HTTPS (for web servers)
+# Note: HTTP/HTTPS ports opened by default for web server deployment
+# Comment out if not needed for your use case
 ufw allow 80/tcp comment 'HTTP'
 ufw allow 443/tcp comment 'HTTPS'
 
@@ -109,7 +110,13 @@ echo ""
 print_status "Step 4: Hardening SSH configuration..."
 
 # Backup original SSH config
-cp /etc/ssh/sshd_config /etc/ssh/sshd_config.backup.$(date +%Y%m%d-%H%M%S)
+BACKUP_FILE="/etc/ssh/sshd_config.backup.$(date +%Y%m%d-%H%M%S)"
+cp /etc/ssh/sshd_config "$BACKUP_FILE"
+if [ ! -f "$BACKUP_FILE" ]; then
+    print_error "Failed to create SSH config backup"
+    exit 1
+fi
+print_status "SSH config backed up to $BACKUP_FILE"
 
 # SSH Configuration changes
 SSH_CONFIG="/etc/ssh/sshd_config"
@@ -132,11 +139,8 @@ if ! grep -q "^PermitEmptyPasswords" "$SSH_CONFIG"; then
     echo "PermitEmptyPasswords no" >> "$SSH_CONFIG"
 fi
 
-# Use only SSH Protocol 2
-sed -i 's/^#*Protocol.*/Protocol 2/' "$SSH_CONFIG"
-if ! grep -q "^Protocol" "$SSH_CONFIG"; then
-    echo "Protocol 2" >> "$SSH_CONFIG"
-fi
+# Note: Protocol 2 is the default in modern OpenSSH (7.4+)
+# The Protocol directive is deprecated and not needed
 
 # Disable X11 Forwarding
 sed -i 's/^#*X11Forwarding.*/X11Forwarding no/' "$SSH_CONFIG"
@@ -175,10 +179,12 @@ bantime = 3600
 findtime = 600
 maxretry = 5
 
-# Email notifications (configure your email)
+# Email notifications (requires MTA like postfix)
 destemail = root@localhost
 sendername = Fail2Ban
-action = %(action_mwl)s
+# Use action_mwl for email notifications (requires configured MTA)
+# Use action_ for ban-only (no email)
+action = %(action_)s
 
 [sshd]
 enabled = true
@@ -191,10 +197,13 @@ EOF
 
 # Start and enable Fail2ban
 systemctl enable fail2ban
-systemctl restart fail2ban
-
-print_status "Fail2ban configured and started"
-fail2ban-client status
+if systemctl restart fail2ban; then
+    print_status "Fail2ban configured and started"
+    fail2ban-client status
+else
+    print_error "Failed to start Fail2ban - check configuration"
+    exit 1
+fi
 echo ""
 
 #############################################################################
@@ -267,7 +276,11 @@ EOF
 fi
 
 # Apply sysctl settings
-sysctl -p > /dev/null 2>&1
+if sysctl -p > /dev/null; then
+    print_status "Network security settings applied successfully"
+else
+    print_warning "Some sysctl settings may have failed to apply"
+fi
 
 print_status "Additional security measures applied"
 echo ""
@@ -295,8 +308,14 @@ echo ""
 #############################################################################
 print_status "Step 9: Restarting services..."
 
-# Restart SSH
-systemctl restart sshd
+# Restart SSH with error handling
+if systemctl restart sshd; then
+    print_status "SSH service restarted successfully"
+else
+    print_error "SSH failed to restart! Check configuration."
+    print_warning "Restore backup with: cp $BACKUP_FILE /etc/ssh/sshd_config"
+    exit 1
+fi
 
 print_status "Services restarted"
 echo ""

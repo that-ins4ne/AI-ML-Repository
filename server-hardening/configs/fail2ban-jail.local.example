@@ -11,12 +11,12 @@ findtime = 600         # 10 minutes
 # Number of failures before ban
 maxretry = 5
 
-# Email notification settings
+# Email notification settings (requires MTA like postfix)
 destemail = root@localhost
 sendername = Fail2Ban
-# action = %(action_)s           # Just ban
-# action = %(action_mw)s         # Ban and send email with whois
-action = %(action_mwl)s          # Ban and send email with logs
+# action = %(action_)s           # Ban only (no email) - default
+# action = %(action_mw)s         # Ban and send email with whois (requires MTA)
+action = %(action_mwl)s          # Ban and send email with logs (requires MTA)
 
 # ===== JAILS =====
 

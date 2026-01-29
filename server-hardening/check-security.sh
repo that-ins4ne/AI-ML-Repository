@@ -39,7 +39,7 @@ echo -e "${GREEN}[2] SSH Security Settings${NC}"
 if [ -f /etc/ssh/sshd_config ]; then
     echo "Root Login: $(sudo sshd -T 2>/dev/null | grep permitrootlogin | awk '{print $2}')"
     echo "Password Auth: $(sudo sshd -T 2>/dev/null | grep passwordauthentication | awk '{print $2}')"
-    echo "Protocol: $(sudo sshd -T 2>/dev/null | grep 'protocol' | awk '{print $2}')"
+    echo "Pubkey Auth: $(sudo sshd -T 2>/dev/null | grep pubkeyauthentication | awk '{print $2}')"
     echo "Max Auth Tries: $(sudo sshd -T 2>/dev/null | grep maxauthtries | awk '{print $2}')"
 else
     echo -e "${RED}SSH config not found${NC}"
